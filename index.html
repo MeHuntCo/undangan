@@ -79,6 +79,25 @@
       position: fixed; right: 16px; bottom: 16px; z-index: 2;
       display:flex; gap:10px; flex-direction:column
     }
+  
+    /* ====== Pop-up animation saat buka undangan ====== */
+    main{opacity:0; transform:scale(.98) translateY(10px); filter:blur(8px); will-change:opacity,transform,filter;
+      transition: opacity .5s ease, transform .6s cubic-bezier(.16,1,.3,1), filter .6s ease}
+    body.opened main{opacity:1; transform:none; filter:blur(0)}
+    @keyframes pop{0%{transform:scale(.96) translateY(14px); opacity:0}60%{transform:scale(1.02); opacity:1}100%{transform:scale(1)}}
+    body.opened main .card{animation:pop .7s cubic-bezier(.16,1,.3,1) both}
+
+    /* Stagger sederhana via nth-child (fallback kalau JS tidak jalan) */
+    body.opened main .card:nth-of-type(1){animation-delay:.05s}
+    body.opened main .card:nth-of-type(2){animation-delay:.13s}
+    body.opened main .card:nth-of-type(3){animation-delay:.21s}
+    body.opened main .card:nth-of-type(4){animation-delay:.29s}
+
+    /* Hormati preferensi pengguna */
+    @media (prefers-reduced-motion: reduce){
+      main{transition:none !important; filter:none !important}
+      body.opened main .card{animation:none !important}
+    }
   </style>
 </head>
 <body>
@@ -98,7 +117,7 @@
   </div>
 
   <!-- ====== MUSIK LATAR (opsional, ganti src) ====== -->
-  <audio id="bgm" src="asset/music.mp3" preload="none" loop></audio>
+  <audio id="bgm" src="" preload="none" loop></audio>
 
   <main class="container">
     <header class="hero card">
@@ -208,9 +227,15 @@
     const audio = $('#bgm');
     const openGate = () => {
       $('#cover').style.display = 'none';
+      // Tambahkan class ke body agar animasi main dimulai
+      document.body.classList.add('opened');
       if (audio && audio.src) {
         audio.play().catch(()=>{});
       }
+      // Stagger animasi tiap .card di dalam <main>
+      document.querySelectorAll('main .card').forEach((el,i)=>{
+        el.style.animationDelay = (i*80) + 'ms';
+      });
     };
     $('#openBtn').addEventListener('click', (e)=>{ e.preventDefault(); openGate(); });
 
