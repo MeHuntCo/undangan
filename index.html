@@ -85,7 +85,7 @@
       transition: opacity .5s ease, transform .6s cubic-bezier(.16,1,.3,1), filter .6s ease}
     body.opened main{opacity:1; transform:none; filter:blur(0)}
     @keyframes pop{0%{transform:scale(.96) translateY(14px); opacity:0}60%{transform:scale(1.02); opacity:1}100%{transform:scale(1)}}
-    body.opened main .card{animation:pop .7s cubic-bezier(.16,1,.3,1) both}
+    body.opened main .card.pop-open{animation:pop .7s cubic-bezier(.16,1,.3,1) both}
 
     /* Stagger sederhana via nth-child (fallback kalau JS tidak jalan) */
     body.opened main .card:nth-of-type(1){animation-delay:.05s}
@@ -98,6 +98,31 @@
       main{transition:none !important; filter:none !important}
       body.opened main .card{animation:none !important}
     }
+  
+    /* ====== Glassmorphism (kaca buram) ====== */
+    .glass{
+      background: rgba(255,255,255,0.22); /* tingkat transparansi kaca */
+      border: 1px solid rgba(255,255,255,.35);
+      box-shadow: 0 8px 30px rgba(0,0,0,.12), inset 0 1px 1px rgba(255,255,255,.2);
+      backdrop-filter: blur(12px) saturate(140%);
+      -webkit-backdrop-filter: blur(12px) saturate(140%);
+    }
+    /* Jika kontras kurang di tema gelap, bisa ganti warna teks: */
+    .glass .muted{ color: rgba(0,0,0,.6) }
+  
+    /* ====== Text pop (judul, paragraf, dsb) ====== */
+    .txt-pop{opacity:0; transform:translateY(6px) scale(.98); filter:blur(2px); will-change:opacity,transform,filter;
+      transition: opacity .45s ease, transform .6s cubic-bezier(.16,1,.3,1), filter .6s ease}
+    body.opened .txt-pop{opacity:1; transform:none; filter:none}
+
+    /* ====== Scroll reveal untuk kartu (section) ====== */
+    .reveal{opacity:0; transform:translateY(12px) scale(.985); filter:blur(8px);
+      transition: opacity .6s ease, transform .7s cubic-bezier(.16,1,.3,1), filter .7s ease}
+    .reveal.in{opacity:1; transform:none; filter:none}
+
+    @media (prefers-reduced-motion: reduce){
+      .txt-pop,.reveal{transition:none !important; transform:none !important; filter:none !important; opacity:1 !important}
+    }
   </style>
 </head>
 <body>
@@ -108,7 +133,7 @@
 
   <!-- ====== COVER (klik untuk buka & play musik) ====== -->
   <div id="cover">
-    <div class="card" style="max-width:460px">
+    <div class="card glass" style="max-width:460px">
       <p class="muted" style="margin:0 0 6px">Kepada Yth.</p>
       <h1 style="margin:0 0 10px"><span id="gateName">Tamu Istimewa</span></h1>
       <p style="margin:0 0 16px" class="muted">Mohon maaf bila ada kesalahan penulisan nama</p>
@@ -120,12 +145,12 @@
   <audio id="bgm" src="" preload="none" loop></audio>
 
   <main class="container">
-    <header class="hero card">
+    <header class="hero card glass">
       <div class="grid cols-2">
         <div>
-          <h1 id="eventTitle">Akad & Resepsi</h1>
-          <p class="muted">Dengan memohon rahmat Allah SWT, kami mengundang Bapak/Ibu/Saudara/i:</p>
-          <p style="font-size:clamp(18px,2.8vw,22px); margin:.2em 0 0"><strong id="guestName">Tamu Istimewa</strong></p>
+          <h1 id="eventTitle" class="txt-pop">Akad & Resepsi</h1>
+          <p class="muted txt-pop">Dengan memohon rahmat Allah SWT, kami mengundang Bapak/Ibu/Saudara/i:</p>
+          <p style="font-size:clamp(18px,2.8vw,22px); margin:.2em 0 0"><strong id="guestName" class="txt-pop">Tamu Istimewa</strong></p>
         </div>
         <div>
           <img src="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1200&auto=format&fit=crop" alt="Foto pasangan / dekor" style="border-radius:16px">
@@ -133,8 +158,8 @@
       </div>
     </header>
 
-    <section class="section card">
-      <h2>Waktu & Lokasi</h2>
+    <section class="section card glass">
+      <h2 class="txt-pop">Waktu & Lokasi</h2>
       <div class="info">
         <div>
           <div class="muted">Tanggal & Jam</div>
@@ -157,8 +182,8 @@
       </div>
     </section>
 
-    <section class="section card">
-      <h2>Galeri</h2>
+    <section class="section card glass">
+      <h2 class="txt-pop">Galeri</h2>
       <div class="gallery">
         <img src="https://images.unsplash.com/photo-1521337586061-d3a34a77c012?q=80&w=1200&auto=format&fit=crop" alt="Galeri 1" style="border-radius:12px">
         <img src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=1200&auto=format&fit=crop" alt="Galeri 2" style="border-radius:12px">
@@ -168,7 +193,7 @@
     </section>
 
     <section class="section card" id="rsvp">
-      <h2>Konfirmasi Kehadiran</h2>
+      <h2 class="txt-pop">Konfirmasi Kehadiran</h2>
       <p class="muted">Klik tombol di bawah untuk mengisi formulir kehadiran.</p>
       <!-- Ganti href di bawah dengan link Google Form kamu -->
       <a class="btn" href="https://forms.gle/" target="_blank" rel="noopener">Isi Form RSVP</a>
@@ -227,14 +252,23 @@
     const audio = $('#bgm');
     const openGate = () => {
       $('#cover').style.display = 'none';
-      // Tambahkan class ke body agar animasi main dimulai
       document.body.classList.add('opened');
-      if (audio && audio.src) {
-        audio.play().catch(()=>{});
-      }
-      // Stagger animasi tiap .card di dalam <main>
-      document.querySelectorAll('main .card').forEach((el,i)=>{
-        el.style.animationDelay = (i*80) + 'ms';
+      if (audio && audio.src) { audio.play().catch(()=>{}); }
+
+      // Stagger untuk teks
+      document.querySelectorAll('.txt-pop').forEach((el,i)=>{
+        el.style.transitionDelay = (i*70)+'ms';
+      });
+
+      // Siapkan kartu untuk pop-on-open + reveal scroll
+      const cards = Array.from(document.querySelectorAll('main .card'));
+      cards.forEach((el,i)=>{
+        el.classList.add('reveal');
+        const r = el.getBoundingClientRect();
+        if (r.top < window.innerHeight - 40) {
+          el.classList.add('in','pop-open');
+          el.style.animationDelay = (i*80)+'ms';
+        }
       });
     };
     $('#openBtn').addEventListener('click', (e)=>{ e.preventDefault(); openGate(); });
@@ -265,6 +299,22 @@
       const a = e.target.closest('a[href^="#"]');
       if(a){ const id = a.getAttribute('href').slice(1); const el = document.getElementById(id); if(el){ e.preventDefault(); el.scrollIntoView({behavior:'smooth'});} }
     });
+    
+    // ====== Scroll reveal observer ======
+    (function(){
+      const cards = document.querySelectorAll('main .card');
+      const obs = ('IntersectionObserver' in window) ? new IntersectionObserver((entries)=>{
+        entries.forEach(e=>{
+          if(e.isIntersecting){
+            e.target.classList.add('in','pop-open');
+            e.target.style.animationDelay = '0ms';
+            obs.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.18, rootMargin: '0px 0px -40px 0px' }) : null;
+
+      if (obs) cards.forEach(el => obs.observe(el));
+    })();
   </script>
 </body>
 </html>
