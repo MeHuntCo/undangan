@@ -133,6 +133,12 @@
       transition: opacity .6s ease, transform .7s cubic-bezier(.16,1,.3,1)}
     body.cover-ready #cover .card{opacity:1; transform:none}
     @media (prefers-reduced-motion: reduce){ #cover, #cover .card{transition:none !important} }
+  
+    /* ====== Robust for mobile + fade-out on open ====== */
+    #cover{will-change: opacity, transform, filter}
+    #cover .card{will-change: opacity, transform}
+    /* Saat menutup cover (klik Buka Undangan) animasikan keluar */
+    body.cover-hide #cover{opacity:0; transform:scale(1.02) translateY(-8px); filter:blur(10px); pointer-events:none}
   </style>
 </head>
 <body>
@@ -261,19 +267,23 @@
     // Gate open + musik
     const audio = $('#bgm');
     const openGate = () => {
-      $('#cover').style.display = 'none';
+      const cover = $('#cover');
+      // Animasi keluar dulu, baru benar2 disembunyikan
+      document.body.classList.add('cover-hide');
       document.body.classList.add('opened');
+      const cleanup = () => { cover.style.display = 'none'; cover.removeEventListener('transitionend', cleanup); };
+      cover.addEventListener('transitionend', cleanup);
+      setTimeout(cleanup, 900); // fallback kalau event tidak terpanggil
+
       if (audio && audio.src) { audio.play().catch(()=>{}); }
 
       // Stagger untuk teks
       document.querySelectorAll('.txt-pop').forEach((el,i)=>{
         el.style.transitionDelay = (i*70)+'ms';
       });
-
       // Siapkan kartu untuk pop-on-open + reveal scroll
       const cards = Array.from(document.querySelectorAll('main .card'));
       cards.forEach((el,i)=>{
-        el.classList.add('reveal');
         const r = el.getBoundingClientRect();
         if (r.top < window.innerHeight - 40) {
           el.classList.add('in','pop-open');
@@ -340,8 +350,12 @@
     
     // Cover fade-in on load
     document.addEventListener('DOMContentLoaded', () => {
-      // Biarkan style awal terpasang dulu, lalu tampilkan cover pelan
-      requestAnimationFrame(()=> document.body.classList.add('cover-ready'));
+      // Double rAF + reflow agar transition pasti ter-trigger di mobile
+      requestAnimationFrame(()=>{
+        getComputedStyle(document.querySelector('#cover')).opacity; // force reflow
+        requestAnimationFrame(()=> document.body.classList.add('cover-ready'));
+      });
+    });
     });
   </script>
 </body>
