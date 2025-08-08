@@ -116,13 +116,23 @@
     body.opened .txt-pop{opacity:1; transform:none; filter:none}
 
     /* ====== Scroll reveal untuk kartu (section) ====== */
-    .reveal{opacity:0; transform:translateY(12px) scale(.985); filter:blur(8px);
-      transition: opacity .6s ease, transform .7s cubic-bezier(.16,1,.3,1), filter .7s ease}
+    .reveal{opacity:0; transform:translateY(22px) scale(.975); filter:blur(10px);
+      transition: opacity .7s ease, transform .8s cubic-bezier(.16,1,.3,1), filter .8s ease;
+      transition-delay: var(--reveal-delay, 0ms)}
     .reveal.in{opacity:1; transform:none; filter:none}
 
     @media (prefers-reduced-motion: reduce){
       .txt-pop,.reveal{transition:none !important; transform:none !important; filter:none !important; opacity:1 !important}
     }
+  
+    /* ====== Cover fade-in ====== */
+    #cover{opacity:0; transform:scale(1.02) translateY(6px); filter:blur(10px);
+      transition: opacity .6s ease, transform .7s cubic-bezier(.16,1,.3,1), filter .7s ease}
+    body.cover-ready #cover{opacity:1; transform:none; filter:none}
+    #cover .card{opacity:0; transform:translateY(14px) scale(.98);
+      transition: opacity .6s ease, transform .7s cubic-bezier(.16,1,.3,1)}
+    body.cover-ready #cover .card{opacity:1; transform:none}
+    @media (prefers-reduced-motion: reduce){ #cover, #cover .card{transition:none !important} }
   </style>
 </head>
 <body>
@@ -300,21 +310,39 @@
       if(a){ const id = a.getAttribute('href').slice(1); const el = document.getElementById(id); if(el){ e.preventDefault(); el.scrollIntoView({behavior:'smooth'});} }
     });
     
-    // ====== Scroll reveal observer ======
+    // ====== Scroll reveal observer (improved)
     (function(){
-      const cards = document.querySelectorAll('main .card');
-      const obs = ('IntersectionObserver' in window) ? new IntersectionObserver((entries)=>{
+      const cards = Array.from(document.querySelectorAll('main .card'));
+      // Pastikan semua card memulai dengan state tersembunyi
+      cards.forEach(el => el.classList.add('reveal'));
+
+      if (!('IntersectionObserver' in window)){
+        cards.forEach(el => el.classList.add('in')); // fallback tanpa animasi
+        return;
+      }
+
+      const obs = new IntersectionObserver((entries)=>{
         entries.forEach(e=>{
           if(e.isIntersecting){
+            // Stagger kecil antar-card saat muncul di viewport
+            e.target.style.setProperty('--reveal-delay', '80ms');
             e.target.classList.add('in','pop-open');
-            e.target.style.animationDelay = '0ms';
             obs.unobserve(e.target);
           }
         });
-      }, { threshold: 0.18, rootMargin: '0px 0px -40px 0px' }) : null;
+      }, { threshold: 0.2, rootMargin: '0px 0px -10% 0px' });
 
-      if (obs) cards.forEach(el => obs.observe(el));
+      cards.forEach((el,i)=>{
+        el.style.animationDelay = '120ms'; // delay default untuk keyframes pop
+        obs.observe(el);
+      });
     })();
+    
+    // Cover fade-in on load
+    document.addEventListener('DOMContentLoaded', () => {
+      // Biarkan style awal terpasang dulu, lalu tampilkan cover pelan
+      requestAnimationFrame(()=> document.body.classList.add('cover-ready'));
+    });
   </script>
 </body>
 </html>
