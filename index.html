@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Undangan untuk <span id="__titleName"></span></title>
+  <meta name="description" content="Undangan digital pribadi yang responsif dan bisa personalisasi nama tamu." />
+  <meta property="og:title" content="Undangan Digital" />
+  <meta property="og:description" content="Undangan digital pribadi yang responsif dan bisa personalisasi nama tamu." />
+  <meta property="og:type" content="website" />
+  <style>
+    /* ====== EDIT DI SINI (tema) ====== */
+    :root{
+      --bg: #faf7f2;       /* warna latar */
+      --card: #ffffff;     /* warna kartu */
+      --text: #2b2b2b;     /* warna teks */
+      --muted: #666;       /* teks sekunder */
+      --accent: #b07b5e;   /* warna aksen */
+      --accent-2: #d8c3b0; /* aksen lembut */
+    }
+
+    /* ====== Reset ringkas ====== */
+    *,*:before,*:after{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    img{max-width:100%;display:block}
+    a{color: var(--accent); text-decoration: none}
+    .container{max-width: 900px; margin: 0 auto; padding: 16px}
+
+    /* ====== Cover / gate ====== */
+    #cover{
+      position: fixed; inset: 0; background: radial-gradient(1200px 600px at 50% -10%, var(--accent-2), var(--bg));
+      display: grid; place-items: center; z-index: 10; text-align: center; padding: 24px;
+    }
+    .card{
+      background: var(--card); border-radius: 20px; padding: 24px; box-shadow: 0 8px 30px rgba(0,0,0,.08);
+    }
+    .btn{
+      display:inline-block; padding:12px 18px; border-radius: 12px; background: var(--accent); color: #fff; font-weight: 600;
+    }
+    .btn.outline{background: transparent; color: var(--accent); border: 2px solid var(--accent)}
+    .muted{color: var(--muted)}
+
+    header.hero{
+      padding: 24px; border-radius: 20px; background: linear-gradient(180deg, rgba(176,123,94,.10), transparent);
+      display:grid; gap: 10px; align-items:center;
+    }
+    header.hero h1{font-size: clamp(28px, 5vw, 44px); line-height: 1.15; margin: 0}
+    header.hero p{margin: 0}
+
+    .grid{display:grid; gap: 16px}
+    @media(min-width: 720px){ .grid.cols-2{grid-template-columns: 1fr 1fr} }
+
+    .section{margin: 28px 0}
+    .section h2{margin: 0 0 6px; font-size: clamp(22px,3.6vw,28px)}
+
+    .info{
+      display: grid; gap: 12px; grid-template-columns: 1fr; align-items: start;
+    }
+    @media(min-width:600px){ .info{grid-template-columns: 1fr 1fr} }
+
+    .countdown{display:flex; gap:10px; align-items:center; flex-wrap: wrap}
+    .cd-box{background: var(--card); border:1px solid #eee; border-radius:14px; padding:10px 12px; text-align:center; min-width:70px}
+    .cd-box .num{font-size: 28px; font-weight: 800; letter-spacing: .5px}
+    .cd-box .lbl{font-size: 12px; color: var(--muted); margin-top: -4px}
+
+    .gallery{display:grid; grid-template-columns: repeat(2,1fr); gap:10px}
+    @media(min-width:700px){ .gallery{grid-template-columns: repeat(3,1fr)} }
+
+    footer{margin:40px 0 20px; text-align:center; color:var(--muted); font-size:14px}
+
+    /* badge kecil kanan bawah */
+    .fab{
+      position: fixed; right: 16px; bottom: 16px; z-index: 2;
+      display:flex; gap:10px; flex-direction:column
+    }
+  </style>
+</head>
+<body>
+  <!-- ====== SETTING TANGGAL ACARA ======
+    Ganti attribut data-event dengan format ISO 8601 + zona waktu kamu, contoh: 2025-10-12T10:00:00+07:00
+  -->
+  <div id="settings" data-event="2025-10-12T10:00:00+07:00" data-title="Undangan Spesial"></div>
+
+  <!-- ====== COVER (klik untuk buka & play musik) ====== -->
+  <div id="cover">
+    <div class="card" style="max-width:460px">
+      <p class="muted" style="margin:0 0 6px">Kepada Yth.</p>
+      <h1 style="margin:0 0 10px"><span id="gateName">Tamu Istimewa</span></h1>
+      <p style="margin:0 0 16px" class="muted">Mohon maaf bila ada kesalahan penulisan nama</p>
+      <a class="btn" id="openBtn" href="#">Buka Undangan</a>
+    </div>
+  </div>
+
+  <!-- ====== MUSIK LATAR (opsional, ganti src) ====== -->
+  <audio id="bgm" src="" preload="none" loop></audio>
+
+  <main class="container">
+    <header class="hero card">
+      <div class="grid cols-2">
+        <div>
+          <h1 id="eventTitle">Akad & Resepsi</h1>
+          <p class="muted">Dengan memohon rahmat Allah SWT, kami mengundang Bapak/Ibu/Saudara/i:</p>
+          <p style="font-size:clamp(18px,2.8vw,22px); margin:.2em 0 0"><strong id="guestName">Tamu Istimewa</strong></p>
+        </div>
+        <div>
+          <img src="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1200&auto=format&fit=crop" alt="Foto pasangan / dekor" style="border-radius:16px">
+        </div>
+      </div>
+    </header>
+
+    <section class="section card">
+      <h2>Waktu & Lokasi</h2>
+      <div class="info">
+        <div>
+          <div class="muted">Tanggal & Jam</div>
+          <div><strong id="eventDateText">Minggu, 12 Oktober 2025 · 10.00 WIB</strong></div>
+        </div>
+        <div>
+          <div class="muted">Alamat</div>
+          <div><strong>Gedung Contoh</strong><br>Jl. Mawar No. 123, Jakarta</div>
+        </div>
+      </div>
+      <div class="countdown" style="margin-top:14px">
+        <div class="cd-box"><div class="num" id="cdDays">0</div><div class="lbl">Hari</div></div>
+        <div class="cd-box"><div class="num" id="cdHours">0</div><div class="lbl">Jam</div></div>
+        <div class="cd-box"><div class="num" id="cdMins">0</div><div class="lbl">Menit</div></div>
+        <div class="cd-box"><div class="num" id="cdSecs">0</div><div class="lbl">Detik</div></div>
+      </div>
+      <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap">
+        <a class="btn" id="btnRSVP" href="#rsvp">RSVP</a>
+        <a class="btn outline" id="btnMap" href="https://maps.google.com" target="_blank" rel="noopener">Lihat Peta</a>
+      </div>
+    </section>
+
+    <section class="section card">
+      <h2>Galeri</h2>
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1521337586061-d3a34a77c012?q=80&w=1200&auto=format&fit=crop" alt="Galeri 1" style="border-radius:12px">
+        <img src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=1200&auto=format&fit=crop" alt="Galeri 2" style="border-radius:12px">
+        <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1200&auto=format&fit=crop" alt="Galeri 3" style="border-radius:12px">
+        <img src="https://images.unsplash.com/photo-1522336572468-97b06e8ef143?q=80&w=1200&auto=format&fit=crop" alt="Galeri 4" style="border-radius:12px">
+      </div>
+    </section>
+
+    <section class="section card" id="rsvp">
+      <h2>Konfirmasi Kehadiran</h2>
+      <p class="muted">Klik tombol di bawah untuk mengisi formulir kehadiran.</p>
+      <!-- Ganti href di bawah dengan link Google Form kamu -->
+      <a class="btn" href="https://forms.gle/" target="_blank" rel="noopener">Isi Form RSVP</a>
+    </section>
+
+    <footer>
+      <div>Terima kasih atas doa dan kehadiran Anda ✨</div>
+      <div style="margin-top:6px">Made with ♥ — bisa kamu edit sesuka hati</div>
+    </footer>
+  </main>
+
+  <div class="fab">
+    <a class="btn" id="btnShareWA" href="#" target="_blank" rel="noopener">Bagikan via WhatsApp</a>
+    <button class="btn outline" id="btnMusic">▶ Musik</button>
+  </div>
+
+  <script>
+    // ====== UTIL ======
+    const $ = (sel) => document.querySelector(sel);
+
+    // Ambil setelan
+    const settingsEl = $('#settings');
+    const EVENT_ISO = settingsEl.dataset.event || new Date().toISOString();
+    const DEFAULT_TITLE = settingsEl.dataset.title || 'Undangan Spesial';
+
+    // Personalisasi nama dari ?to=Nama+Tamu
+    const params = new URLSearchParams(location.search);
+    const rawTo = params.get('to') || '';
+    const guest = rawTo.replace(/\+/g,' ');
+
+    const guestName = guest ? decodeURIComponent(guest) : 'Tamu Istimewa';
+    $('#gateName').textContent = guestName;
+    $('#guestName').textContent = guestName;
+
+    // Title dokumen
+    document.title = `${DEFAULT_TITLE} untuk ${guestName}`;
+
+    // Countdown
+    const eventDate = new Date(EVENT_ISO);
+    function updateCountdown(){
+      const now = new Date();
+      let diff = Math.max(0, eventDate - now);
+      const d = Math.floor(diff / (1000*60*60*24)); diff -= d*24*60*60*1000;
+      const h = Math.floor(diff / (1000*60*60)); diff -= h*60*60*1000;
+      const m = Math.floor(diff / (1000*60)); diff -= m*60*1000;
+      const s = Math.floor(diff / 1000);
+      $('#cdDays').textContent = d; $('#cdHours').textContent = h; $('#cdMins').textContent = m; $('#cdSecs').textContent = s;
+    }
+    updateCountdown(); setInterval(updateCountdown, 1000);
+
+    // Teks tanggal tampilan (ubah manual jika mau format khusus)
+    const opt = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour:'2-digit', minute:'2-digit', hour12:false };
+    $('#eventDateText').textContent = eventDate.toLocaleString('id-ID', opt).replace(/\./g, ':') + ' WIB';
+
+    // Gate open + musik
+    const audio = $('#bgm');
+    const openGate = () => {
+      $('#cover').style.display = 'none';
+      if (audio && audio.src) {
+        audio.play().catch(()=>{});
+      }
+    };
+    $('#openBtn').addEventListener('click', (e)=>{ e.preventDefault(); openGate(); });
+
+    $('#btnMusic').addEventListener('click', ()=>{
+      if(!audio || !audio.src){
+        const url = prompt('Masukkan URL file musik (mp3)');
+        if(url){ audio.src = url; audio.play().catch(()=>{}); }
+        return;
+      }
+      if(audio.paused){ audio.play().catch(()=>{}); $('#btnMusic').textContent='⏸ Musik'; }
+      else { audio.pause(); $('#btnMusic').textContent='▶ Musik'; }
+    });
+
+    // Tombol share WA
+    const base = location.origin + location.pathname; // biar rapih tanpa query default
+    const linkUntukTamuIni = `${base}?to=${encodeURIComponent(guestName)}`;
+    const pesanWA = `Halo ${guestName}! Kami mengundang kamu ke acara kami pada ${$('#eventDateText').textContent}. Detail undangan: ${linkUntukTamuIni}`;
+    $('#btnShareWA').href = `https://wa.me/?text=${encodeURIComponent(pesanWA)}`;
+
+    // Map & RSVP (opsional: bisa dibuat dinamis juga melalui URL param) 
+    // Contoh: ?map=https://maps.app.goo.gl/...&rsvp=https://forms.gle/...
+    const mapUrl = params.get('map'); if(mapUrl) $('#btnMap').href = mapUrl;
+    const rsvpUrl = params.get('rsvp'); if(rsvpUrl) $('#btnRSVP').href = rsvpUrl;
+
+    // Smooth scroll kecil untuk #rsvp
+    document.addEventListener('click', (e)=>{
+      const a = e.target.closest('a[href^="#"]');
+      if(a){ const id = a.getAttribute('href').slice(1); const el = document.getElementById(id); if(el){ e.preventDefault(); el.scrollIntoView({behavior:'smooth'});} }
+    });
+  </script>
+</body>
+</html>
